@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>App Agenda 2026 PRO</title>
+    <title>Agenda An.Yoshi 2026</title>
     <style>
         :root {
             --primary: #1a1a1a; --accent: #4a90e2; --green: #28a745;
@@ -11,13 +11,12 @@
         }
 
         * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--primary); }
+        body { font-family: -apple-system, system-ui, sans-serif; background-color: var(--bg); color: var(--primary); padding-bottom: 60px; }
 
         .app-container { max-width: 480px; margin: 0 auto; min-height: 100vh; display: flex; flex-direction: column; }
 
         header { background: var(--primary); color: white; padding: 15px; position: sticky; top: 0; z-index: 10; }
         
-        /* Barra de Backup */
         .backup-bar { 
             display: flex; justify-content: space-around; padding: 10px 0; 
             border-bottom: 1px solid #333; margin-bottom: 10px; font-size: 0.75rem;
@@ -40,7 +39,16 @@
         .event-card { background: var(--card); border-radius: 12px; padding: 15px; margin-bottom: 10px; border-left: 5px solid var(--accent); animation: slideUp 0.3s ease; }
         @keyframes slideUp { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
-        .fab { position: fixed; bottom: 25px; right: 25px; background: var(--green); color: white; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(40,167,69,0.4); border: none; }
+        .fab { position: fixed; bottom: 80px; right: 25px; background: var(--green); color: white; width: 56px; height: 56px; border-radius: 28px; display: flex; align-items: center; justify-content: center; font-size: 24px; box-shadow: 0 4px 12px rgba(40,167,69,0.4); border: none; z-index: 5; }
+
+        /* Rodapé com Assinatura */
+        footer {
+            position: fixed; bottom: 0; left: 0; width: 100%;
+            background: var(--primary); color: #888;
+            text-align: center; padding: 15px; font-size: 0.8rem;
+            border-top: 1px solid #333; z-index: 10;
+        }
+        .signature { color: white; font-weight: bold; letter-spacing: 1px; }
 
         /* Modais */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 100; align-items: flex-end; }
@@ -58,7 +66,7 @@
 <div class="app-container">
     <header>
         <div class="backup-bar">
-            <button class="btn-backup" onclick="exportBackup()">📤 FAZER BACKUP</button>
+            <button class="btn-backup" onclick="exportBackup()">📤 EXPORTAR DADOS</button>
             <button class="btn-backup" onclick="document.getElementById('importFile').click()">📥 RESTAURAR</button>
             <input type="file" id="importFile" style="display:none" onchange="importBackup(event)">
         </div>
@@ -77,35 +85,43 @@
     </div>
 
     <div class="day-details" id="dayDetails">
-        <p style="text-align: center; color: #999; margin-top: 20px;">Toque em um dia para gerenciar</p>
+        <p style="text-align: center; color: #999; margin-top: 20px;">Selecione um dia para planejar</p>
     </div>
 
     <button class="fab" onclick="openModal()">+</button>
+
+    <footer>
+        Desenvolvido para Gestão de Conteúdo 2026<br>
+        <span class="signature">By: An.Yoshi</span>
+    </footer>
 </div>
 
 <div class="modal-overlay" id="modalOverlay">
     <div class="modal">
-        <h3 id="modalTitle" style="margin-bottom:15px; text-align:center">Evento</h3>
-        <input type="text" id="eventDesc" placeholder="Descrição (ex: Destaque da Equipe)">
+        <h3 id="modalTitle" style="margin-bottom:15px; text-align:center">Novo Evento</h3>
+        <input type="text" id="eventDesc" placeholder="Descrição da postagem">
         <input type="time" id="eventTime">
-        <input type="text" id="eventLoc" placeholder="Local/Rede Social">
+        <input type="text" id="eventLoc" placeholder="Onde postar? (Ex: Instagram)">
         <select id="eventColor">
             <option value="#28a745">📗 Conteúdo Educativo</option>
             <option value="#ffc107">⭐ Destaque da Equipe</option>
-            <option value="#dc3545">🚨 Importante</option>
-            <option value="#4a90e2">❓ Enquete</option>
+            <option value="#dc3545">🚨 Importante / Evento</option>
+            <option value="#4a90e2">❓ Enquete / Pergunta</option>
+            <option value="#9c27b0">💡 Dica da Semana</option>
         </select>
         <div class="modal-actions">
             <button class="btn btn-save" onclick="saveEvent()">SALVAR</button>
             <button class="btn btn-delete" id="delBtn" onclick="deleteEvent()" style="display:none">EXCLUIR</button>
-            <button class="btn" onclick="closeModal()">VOLTAR</button>
+            <button class="btn" onclick="closeModal()">FECHAR</button>
         </div>
     </div>
 </div>
 
 <script>
     let current = new Date();
-    let events = JSON.parse(localStorage.getItem('app_events_2026')) || {};
+    // Chave única para evitar conflitos de dados
+    const STORAGE_KEY = 'app_events_yoshi_2026';
+    let events = JSON.parse(localStorage.getItem(STORAGE_KEY)) || {};
     let selectedDateKey = null;
 
     const monthNames = ["JANEIRO", "FEVEREIRO", "MARÇO", "ABRIL", "MAIO", "JUNHO", "JULHO", "AGOSTO", "SETEMBRO", "OUTUBRO", "NOVEMBRO", "DEZEMBRO"];
@@ -144,16 +160,15 @@
                     <small>📍 ${ev.loc}</small>
                 </div>`;
         } else {
-            details.innerHTML = `<button class="btn" style="width:100%; border: 1px dashed #ccc; color:#888" onclick="openModal()">+ Adicionar Postagem</button>`;
+            details.innerHTML = `<button class="btn" style="width:100%; border: 1px dashed #ccc; color:#888; background:none" onclick="openModal()">+ Planejar este dia</button>`;
         }
     }
 
-    // FUNÇÕES DE BACKUP
     function exportBackup() {
         const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(events));
         const downloadAnchorNode = document.createElement('a');
         downloadAnchorNode.setAttribute("href", dataStr);
-        downloadAnchorNode.setAttribute("download", "backup_agenda_2026.json");
+        downloadAnchorNode.setAttribute("download", "agenda_2026_backup.json");
         document.body.appendChild(downloadAnchorNode);
         downloadAnchorNode.click();
         downloadAnchorNode.remove();
@@ -165,52 +180,59 @@
         const reader = new FileReader();
         reader.onload = function(e) {
             try {
-                const importedEvents = JSON.parse(e.target.result);
-                if(confirm("Isso irá substituir sua agenda atual. Continuar?")) {
-                    events = importedEvents;
-                    localStorage.setItem('app_events_2026', JSON.stringify(events));
+                const imported = JSON.parse(e.target.result);
+                if(confirm("Deseja restaurar este backup? Os dados atuais serão substituídos.")) {
+                    events = imported;
+                    localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
                     initCalendar();
-                    alert("Backup restaurado com sucesso!");
+                    alert("Sucesso! Agenda atualizada.");
                 }
-            } catch (err) { alert("Arquivo de backup inválido."); }
+            } catch (err) { alert("Erro ao ler o arquivo."); }
         };
         reader.readAsText(file);
     }
 
-    // CRUD BÁSICO
     function openModal(isEdit = false) {
         if(!selectedDateKey) return;
         document.getElementById('modalOverlay').style.display = 'flex';
         const ev = events[selectedDateKey];
         if(isEdit && ev) {
+            document.getElementById('modalTitle').innerText = "Editar Planejamento";
             document.getElementById('eventDesc').value = ev.desc;
             document.getElementById('eventTime').value = ev.time;
             document.getElementById('eventLoc').value = ev.loc;
             document.getElementById('eventColor').value = ev.color;
             document.getElementById('delBtn').style.display = 'block';
         } else {
+            document.getElementById('modalTitle').innerText = "Novo Post";
             document.getElementById('eventDesc').value = "";
             document.getElementById('eventTime').value = "09:00";
+            document.getElementById('eventLoc').value = "";
             document.getElementById('delBtn').style.display = 'none';
         }
     }
 
     function saveEvent() {
+        const desc = document.getElementById('eventDesc').value;
+        if(!desc) return alert("Digite uma descrição!");
+        
         events[selectedDateKey] = {
-            desc: document.getElementById('eventDesc').value || "Postagem",
+            desc: desc,
             time: document.getElementById('eventTime').value,
-            loc: document.getElementById('eventLoc').value || "Rede Social",
+            loc: document.getElementById('eventLoc').value || "Não especificado",
             color: document.getElementById('eventColor').value
         };
-        localStorage.setItem('app_events_2026', JSON.stringify(events));
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
         closeModal(); initCalendar(); selectDay(selectedDateKey);
     }
 
     function deleteEvent() {
-        delete events[selectedDateKey];
-        localStorage.setItem('app_events_2026', JSON.stringify(events));
-        closeModal(); initCalendar();
-        document.getElementById('dayDetails').innerHTML = `<p style="text-align: center; color: #999;">Excluído</p>`;
+        if(confirm("Remover este item do calendário?")) {
+            delete events[selectedDateKey];
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+            closeModal(); initCalendar();
+            document.getElementById('dayDetails').innerHTML = `<p style="text-align: center; color: #999;">Excluído com sucesso.</p>`;
+        }
     }
 
     function closeModal() { document.getElementById('modalOverlay').style.display = 'none'; }
